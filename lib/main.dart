@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mezmaps/feature/home_view.dart';
+import 'package:mezmaps/feature/home/home_view.dart';
 import 'package:mezmaps/product/theme/custom_dark_theme.dart';
 import 'package:mezmaps/product/theme/custom_ligth_theme.dart';
 
@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       darkTheme: CustomDarkTheme().themeData,
       theme: CustomLightTheme().themeData,
-      themeMode: ThemeMode.dark,
+      themeMode: ThemeMode.light,
       home: HomeView(),
     );
   }
