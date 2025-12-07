@@ -1,10 +1,12 @@
 import 'package:common/common.dart';
 import 'package:flutter/material.dart';
 import 'package:mezmaps/feature/cemeteries/view/cemeteries_view.dart';
+import 'package:mezmaps/feature/grave_location/view/grave_location_view.dart';
 import 'package:mezmaps/feature/home/view_model/mixin/home_mixin.dart';
 import 'package:mezmaps/product/state/base/base_state.dart';
 import 'package:gen/gen.dart';
 import 'package:mezmaps/product/utility/constant/language/product_string.dart';
+import 'package:mezmaps/product/utility/navigation/navigation_ext.dart';
 
 part '../widget/home_view_widget.dart';
 
@@ -34,10 +36,7 @@ class _HomeViewState extends BaseState<HomeView> with HomeViewMixin {
             ),
             text: ProjectString.cemeteries,
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const CemeteriesView()),
-              );
+              context.pushTo(CemeteriesView());
             },
           ),
 
@@ -50,7 +49,9 @@ class _HomeViewState extends BaseState<HomeView> with HomeViewMixin {
               width: 25,
             ),
             text: ProjectString.cemeteryLocations,
-            onPressed: () {},
+            onPressed: () {
+              context.pushTo(GraveSearchPage());
+            },
           ),
           _CustomButton(
             logo: Assets.icons.vfLight.image(

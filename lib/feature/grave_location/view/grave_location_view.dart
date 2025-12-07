@@ -1,5 +1,9 @@
+import 'package:common/common.dart';
 import 'package:flutter/material.dart';
+import 'package:gen/gen.dart';
 import 'package:mezmaps/feature/home/view/home_view.dart';
+import 'package:mezmaps/product/utility/constant/language/product_string.dart';
+import 'package:mezmaps/product/widgets/custom_app_bar.dart';
 
 class GraveSearchPage extends StatefulWidget {
   const GraveSearchPage({super.key});
@@ -10,8 +14,10 @@ class GraveSearchPage extends StatefulWidget {
 class _GraveSearchPageState extends State<GraveSearchPage> {
   final _ad = TextEditingController();
   final _soyad = TextEditingController();
+  final _anneAdi = TextEditingController();
+  final _babaAdi = TextEditingController();
   final _mezarliklar = const ['Asri Mezarlık', 'Yeşilkent Mezarlığı'];
-  String? _mezarlik = 'Asri Mezarlık';
+  String? _mezarlik = null;
 
   final List<_Grave> _all = const [
     _Grave(
@@ -19,7 +25,7 @@ class _GraveSearchPageState extends State<GraveSearchPage> {
       'Çelik',
       21,
       '13.05.2025',
-      'K-1309',
+      'A-13',
       'Asri Mezarlık',
       "Esra",
       "BİLO BABA",
@@ -29,7 +35,7 @@ class _GraveSearchPageState extends State<GraveSearchPage> {
       'Alkış',
       24,
       '03.07.2011',
-      'B-777',
+      'B-14',
       'Yeşilkent Mezarlığı',
       "Saliha",
       "Murat",
@@ -39,7 +45,7 @@ class _GraveSearchPageState extends State<GraveSearchPage> {
       'Yılmaz',
       68,
       '01.04.2020',
-      'C-12',
+      'C-15',
       'Yeşilkent Mezarlığı',
       "Esma",
       "Ali",
@@ -49,7 +55,7 @@ class _GraveSearchPageState extends State<GraveSearchPage> {
       "Selli",
       31,
       "22.10.2024",
-      "K-1910",
+      "D-16",
       "Asri Mezarlık",
       "Arzu",
       "Şükrü",
@@ -57,16 +63,21 @@ class _GraveSearchPageState extends State<GraveSearchPage> {
   ];
   late List<_Grave> _result = List.of(_all);
 
+  // yazdıgımız isimleri ekranda gösteren kısım
   void _search() {
     final a = _ad.text.trim().toLowerCase();
     final s = _soyad.text.trim().toLowerCase();
+    final aa = _anneAdi.text.trim().toLowerCase();
+    final ba = _babaAdi.text.trim().toLowerCase();
     final m = _mezarlik;
     setState(() {
       _result = _all.where((g) {
         final adOk = a.isEmpty || g.ad.toLowerCase().contains(a);
         final soOk = s.isEmpty || g.soyad.toLowerCase().contains(s);
+        final aa0k = aa.isEmpty || g.anneAdi.toLowerCase().contains(aa);
+        final baOk = ba.isEmpty || g.babaAdi.toLowerCase().contains(ba);
         final meOk = m == null || g.mezarlik == m;
-        return adOk && soOk && meOk;
+        return adOk && soOk && aa0k && baOk && meOk;
       }).toList();
     });
   }
@@ -75,63 +86,104 @@ class _GraveSearchPageState extends State<GraveSearchPage> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('MEZAR KONUMU'), centerTitle: true),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          TextField(
-            controller: _ad,
-            decoration: const InputDecoration(
-              labelText: 'Ad Yazınız',
-              border: OutlineInputBorder(),
+      appBar: CustomAppbar(
+        text: ProjectString.cemeteryLocations,
+        widget: Assets.icons.mkLight.image(package: 'gen', width: 35),
+      ),
+      body: Padding(
+        padding: PaddingManager.normalPaddingAll(context),
+        child: ListView(
+          children: [
+            SizedBox(height: 4),
+            TextField(
+              controller: _ad,
+              decoration: const InputDecoration(
+                labelText: 'Ad',
+                border: OutlineInputBorder(),
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _soyad,
-            decoration: const InputDecoration(
-              labelText: 'Soyad Yazınız',
-              border: OutlineInputBorder(),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _soyad,
+              decoration: const InputDecoration(
+                labelText: 'Soyad',
+                border: OutlineInputBorder(),
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: DropdownButtonFormField<String>(
-                  value: _mezarlik,
-                  decoration: const InputDecoration(
-                    labelText: 'Mezarlık',
-                    border: OutlineInputBorder(),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _anneAdi,
+              decoration: const InputDecoration(
+                labelText: 'Anne Adı',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _babaAdi,
+              decoration: const InputDecoration(
+                labelText: 'Baba Adı',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: Stack(
+                    alignment: Alignment.centerRight,
+                    children: [
+                      DropdownButtonFormField<String>(
+                        value: _mezarlik,
+                        hint: const Text('Mezarlık seçiniz'),
+                        decoration: const InputDecoration(
+                          labelText: 'Mezarlık',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: _mezarliklar
+                            .map(
+                              (e) => DropdownMenuItem(value: e, child: Text(e)),
+                            )
+                            .toList(),
+                        onChanged: (v) => setState(() => _mezarlik = v),
+                      ),
+                      if (_mezarlik != null)
+                        Positioned(
+                          right: 25,
+                          child: IconButton(
+                            // buraya assetsden çağırılacak iconları ekledim beceremedim
+                            icon: const Icon(Icons.close, size: 20),
+                            color: Theme.of(context).colorScheme.primary,
+                            tooltip: 'Seçimi temizle',
+                            onPressed: () => setState(() => _mezarlik = null),
+                          ),
+                        ),
+                    ],
                   ),
-                  items: _mezarliklar
-                      .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                      .toList(),
-                  onChanged: (v) => setState(() => _mezarlik = v),
                 ),
-              ),
-              const SizedBox(width: 12),
-              SizedBox(
-                height: 56,
-                width: 56,
-                child: FilledButton(
-                  onPressed: _search,
-                  child: const Icon(Icons.search),
+                const SizedBox(width: 12),
+                SizedBox(
+                  height: 56,
+                  width: 56,
+                  child: FilledButton(
+                    onPressed: _search,
+                    child: Icon(Icons.search_outlined),
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          const Divider(),
-          const SizedBox(height: 8),
-          Text(
-            'Kayıtlı Mezar Sayısı: ${_result.length}',
-            style: TextStyle(color: cs.onSurfaceVariant),
-          ),
-          const SizedBox(height: 12),
-          ..._result.map((g) => _GraveCard(g)).toList(),
-          const SizedBox(height: 24),
-        ],
+              ],
+            ),
+            const SizedBox(height: 16),
+            const Divider(),
+            const SizedBox(height: 8),
+            Text(
+              'Kayıtlı Mezar Sayısı: ${_result.length}',
+              style: TextStyle(color: cs.onSurfaceVariant),
+            ),
+            const SizedBox(height: 12),
+            ..._result.map((g) => _GraveCard(g)).toList(),
+            const SizedBox(height: 24),
+          ],
+        ),
       ),
       bottomNavigationBar: BottomBar(),
     );
@@ -139,7 +191,7 @@ class _GraveSearchPageState extends State<GraveSearchPage> {
 }
 
 class _GraveCard extends StatelessWidget {
-  const _GraveCard(this.g, {super.key});
+  const _GraveCard(this.g);
   final _Grave g;
 
   @override
@@ -152,12 +204,12 @@ class _GraveCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
           color: cs.outline,
-          width: 4.0, // burayı değiştirerek kalınlığı artırabilirsin
+          width: 3.0, // burayı değiştirerek kalınlığı artırabilirsin
         ),
       ),
 
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+        padding: PaddingManager.responsiveLTRB(context),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -166,7 +218,7 @@ class _GraveCard extends StatelessWidget {
               style: TextStyle(
                 fontWeight: FontWeight.w800,
                 fontSize: 20,
-                color: Colors.green.shade800,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
             const SizedBox(height: 10),
